@@ -3,6 +3,15 @@
 //
 
 #pragma once
+#include "afxwin.h"
+
+//상대경로로 헤더파일을 지정합니다.
+#include "include/GL/glew.h"
+#include "include/GL/wglew.h"
+
+//사용할 라이브러리를 지정해줍니다.
+#pragma comment(lib, "OpenGL32.lib")
+#pragma comment(lib, "./lib/glew32.lib")
 
 
 // COpenGLwithMFCDlg 대화 상자
@@ -31,4 +40,29 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	CStatic m_picture;
+	afx_msg void OnDestroy();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+
+protected:
+	virtual BOOL GetOldStyleRenderingContext(void);
+	virtual BOOL SetupPixelFormat(void);
+
+private:
+	//OpenGL Setup
+	BOOL GetRenderingContext();
+	//Rendering Context and Device Context Pointers
+	HGLRC     m_hRC;
+	CDC*      m_pDC;
+
+	GLuint vao;
+	void defineVAO(GLuint &vao, GLuint &shaderProgram);
+	GLuint create_program();
+
+
+
+	//tmp
+	GLfloat dotSize = 5.0f;
+	boolean dotDirection = true; // true: + , false: -
 };
