@@ -58,6 +58,7 @@ void COpenGLwithMFCDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_PICTURE, m_picture);
+	DDX_Control(pDX, IDC_PIC_RIGHT1, m_picRight1);
 }
 
 BEGIN_MESSAGE_MAP(COpenGLwithMFCDlg, CDialogEx)
@@ -66,6 +67,7 @@ BEGIN_MESSAGE_MAP(COpenGLwithMFCDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_WM_DESTROY()
 	ON_WM_TIMER()
+	ON_BN_CLICKED(IDC_BUTTON2, &COpenGLwithMFCDlg::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
 
@@ -101,6 +103,10 @@ BOOL COpenGLwithMFCDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
+
+
+
+
 
 	//OpenGL context 생성
 	if (!GetRenderingContext())
@@ -200,12 +206,12 @@ void COpenGLwithMFCDlg::OnTimer(UINT_PTR nIDEvent)
 	//if (~dotDirection & (5.0f > dotSize)) dotDirection = true;
 	//else if (dotDirection & (15.0f < dotSize)) dotDirection = false;
 
-	//key 시도중
+	//key 시도중 ()
 	//glfwGetKey()
 
 	glPointSize(dotSize);
 
-	glDrawArrays(GL_POINTS, 0, 5);
+	glDrawArrays(GL_POINTS, 0, iHeight*iWidth);
 
 	//화면 업데이트
 	SwapBuffers(m_pDC->GetSafeHdc());
@@ -280,31 +286,38 @@ void COpenGLwithMFCDlg::defineVAO(GLuint &vao, GLuint &shaderProgram)
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-	float position[] = {
-		0.0f,  0.5f, 0.0f, //vertex 1
-		0.5f, -0.5f, 0.0f, //vertex 2
-		-0.5f, -0.5f, 0.0f,//vertex 3
-		-0.5f, 0.5f, 0.0f//vertex 4
-	};
-
-	float color[] = {
-		1.0f, 0.0f, 0.0f, //vertex 1 : RED (1,0,0)
-		0.0f, 1.0f, 0.0f, //vertex 2 : GREEN (0,1,0) 
-		0.0f, 0.0f, 1.0f, //vertex 3 : BLUE (0,0,1)
-		0.0f, 1.0f, 0.0f //vertex 4 : BLUE (1,1,0)
-	};
 
 
+	//====================try.old=======================
+	
+	pPosition = new float[iWidth*iHeight * 3];
+	pColor = new float[iWidth*iHeight * 3];
+
+	for (int i = 0; i < iWidth*iHeight; i++) {
+
+		float kkk = (float)i / (iWidth*iHeight); //tmp		
+		pPosition[i * 3 + 0] = -1.0f + 2 * kkk; // x 좌표
+		pPosition[i * 3 + 1] = 0.9f; // y 좌표
+		pPosition[i * 3 + 2] = 0.0f; // z 좌표
+
+	}
+	
+	for (int i = 0; i < iWidth*iHeight; i++) {
+		float kkk = (float)i / (iWidth*iHeight); //tmp		
+		pColor[i * 3 + 0] = 1.0f; // R
+		pColor[i * 3 + 1] = kkk; // G
+		pColor[i * 3 + 2] = 0.0f; // B
+	}
 
 	GLuint position_vbo, color_vbo;
 
 	glGenBuffers(1, &position_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, position_vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, _msize(pPosition), pPosition, GL_STATIC_DRAW);
 
 	glGenBuffers(1, &color_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, _msize(pColor), pColor, GL_STATIC_DRAW);
 
 
 	shaderProgram = create_program();
@@ -477,7 +490,7 @@ BOOL COpenGLwithMFCDlg::SetupPixelFormat()
 
 	unsigned int numFormats;
 	int pixelFormat;
-	PIXELFORMATDESCRIPTOR pfd;
+	//PIXELFORMATDESCRIPTOR pfd; //밑 주석에서 사용하는데 사용 안해서 주석처리
 
 	//Select a pixel format number
 	wglChoosePixelFormatARB(m_pDC->GetSafeHdc(), attribList, NULL, 1, &pixelFormat, &numFormats);
@@ -501,4 +514,15 @@ BOOL COpenGLwithMFCDlg::SetupPixelFormat()
 	//}
 
 	return TRUE;
+}
+
+
+void COpenGLwithMFCDlg::OnBnClickedButton2()
+{
+	CDC* pDCrightPic = m_picRight1.GetDC();
+	//int ikkk = EBW8Image1Test.GetWidth(); //1000
+	//int ikjk = EBW8Image1Test.GetHeight(); //707 잘 받는데...
+	//EBW8Image1Test.Draw((HDC)pDCrightPic, 1.0f, 1.0f); // 이미지가 안나옴. -> 동글 라이센스 이상함
+	
+	
 }

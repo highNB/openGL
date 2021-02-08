@@ -5,6 +5,9 @@
 #pragma once
 #include "afxwin.h"
 
+
+//▼▼▼▼▼▼▼▼▼▼▼▼▼▼ user custom (정리 해야함) ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+
 //상대경로로 헤더파일을 지정합니다.
 #include "include/GL/glew.h"
 #include "include/GL/wglew.h"
@@ -13,6 +16,11 @@
 #pragma comment(lib, "OpenGL32.lib")
 #pragma comment(lib, "./lib/glew32.lib")
 
+//license exception 발생..?
+//using namespace Euresys::Open_eVision_2_5;
+//using namespace Euresys::Open_eVision_2_13;
+
+//▲▲▲▲▲▲▲▲▲▲▲▲▲▲ user custom (정리 해야함) ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
 // COpenGLwithMFCDlg 대화 상자
 class COpenGLwithMFCDlg : public CDialogEx
@@ -61,8 +69,26 @@ private:
 	GLuint create_program();
 
 
+	//▼▼▼▼▼▼▼▼▼▼▼▼▼▼ user custom (정리 해야함) ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+
+	//tmp 동적할당
+	float* pPosition;
+	float* pColor;
+	int iWidth = 180;
+	int iHeight = 100;
 
 	//tmp
 	GLfloat dotSize = 5.0f;
 	boolean dotDirection = true; // true: + , false: -
+
+	// 이미지 처리용 (Open eVision) (배열이나 Matrix대비 속도에 이득이 있나?)
+	// (쓰는 이유: 속도는 모르겠고 Height, Width구하기는 좋을듯)
+	// eVision 라이센스 에러인지..
+	//EImageBW8 EBW8Image1; // EImageBW8 instance
+	
+
+
+public:
+	afx_msg void OnBnClickedButton2();
+	CStatic m_picRight1;
 };
