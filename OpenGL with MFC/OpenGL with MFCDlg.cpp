@@ -11,7 +11,6 @@
 #define new DEBUG_NEW
 #endif
 
-
 // 응용 프로그램 정보에 사용되는 CAboutDlg 대화 상자입니다.
 
 class CAboutDlg : public CDialogEx
@@ -105,7 +104,8 @@ BOOL COpenGLwithMFCDlg::OnInitDialog()
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 
 
-
+	iWidth = WIDTH_TEST;
+	iHeight = HEIGHT_TEST;
 
 
 	//OpenGL context 생성
@@ -201,17 +201,18 @@ void COpenGLwithMFCDlg::OnTimer(UINT_PTR nIDEvent)
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	//실시간인지 테스드해봄 (밑으로4줄)
-	//if (dotDirection) dotSize += 0.5f;
-	//else dotSize -= 0.5f;
-	//if (~dotDirection & (5.0f > dotSize)) dotDirection = true;
-	//else if (dotDirection & (15.0f < dotSize)) dotDirection = false;
+	if (dotDirection) dotSize += 0.5f;
+	else dotSize -= 0.5f;
+	if (~dotDirection & (5.0f > dotSize)) dotDirection = true;
+	else if (dotDirection & (15.0f < dotSize)) dotDirection = false;
 
 	//key 시도중 ()
 	//glfwGetKey()
 
 	glPointSize(dotSize);
 
-	glDrawArrays(GL_POINTS, 0, iHeight*iWidth);
+	glDrawArrays(GL_POINTS, 0, (iWidth*iHeight));
+	glEnable(GL_POINT_SMOOTH);
 
 	//화면 업데이트
 	SwapBuffers(m_pDC->GetSafeHdc());
@@ -291,18 +292,18 @@ void COpenGLwithMFCDlg::defineVAO(GLuint &vao, GLuint &shaderProgram)
 	//====================try.old=======================
 	
 	pPosition = new float[iWidth*iHeight * 3];
-	pColor = new float[iWidth*iHeight * 3];
+	pColor = new float[iWidth*iHeight *3];
 
-	for (int i = 0; i < iWidth*iHeight; i++) {
+	for (int i = 0; i < (iWidth*iHeight); i++) {
 
 		float kkk = (float)i / (iWidth*iHeight); //tmp		
-		pPosition[i * 3 + 0] = -1.0f + 2 * kkk; // x 좌표
-		pPosition[i * 3 + 1] = 0.9f; // y 좌표
+		pPosition[i * 3 + 0] = -0.95f + 1.9f * kkk; // x 좌표
+		pPosition[i * 3 + 1] = -0.95f + 1.9f * kkk; // y 좌표
 		pPosition[i * 3 + 2] = 0.0f; // z 좌표
 
 	}
 	
-	for (int i = 0; i < iWidth*iHeight; i++) {
+	for (int i = 0; i < (iWidth*iHeight); i++) {
 		float kkk = (float)i / (iWidth*iHeight); //tmp		
 		pColor[i * 3 + 0] = 1.0f; // R
 		pColor[i * 3 + 1] = kkk; // G
@@ -426,7 +427,7 @@ BOOL COpenGLwithMFCDlg::GetOldStyleRenderingContext()
 		0,                              // shift bit ignored
 		0,                              // no accumulation buffer
 		0, 0, 0, 0,                     // accum bits ignored
-		24,                        // 24-bit z-buffer
+		24,								// 24-bit z-buffer
 		0,                              // no stencil buffer
 		0,                              // no auxiliary buffer
 		PFD_MAIN_PLANE,                 // main layer
@@ -523,6 +524,13 @@ void COpenGLwithMFCDlg::OnBnClickedButton2()
 	//int ikkk = EBW8Image1Test.GetWidth(); //1000
 	//int ikjk = EBW8Image1Test.GetHeight(); //707 잘 받는데...
 	//EBW8Image1Test.Draw((HDC)pDCrightPic, 1.0f, 1.0f); // 이미지가 안나옴. -> 동글 라이센스 이상함
-	
-	
+
+	//WWWWWWWWWWWWWWWWWWWWWWWWWWeVision -> CImage class 진행중.. @@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+	//imageT1.Load(_T("C:/Users/LG/Documents/Visual Studio 2015/Projects/OpenGL with MFC/OpenGL with MFC/GrayTest.bmp"));
+	//int kk = imageT1.GetWidth();
+
+	iWidth -= 1;
+
+	//TRACE("kk = %d", kk);
 }

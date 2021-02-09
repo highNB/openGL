@@ -7,6 +7,8 @@
 
 
 //▼▼▼▼▼▼▼▼▼▼▼▼▼▼ user custom (정리 해야함) ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+#define WIDTH_TEST 3
+#define HEIGHT_TEST 3
 
 //상대경로로 헤더파일을 지정합니다.
 #include "include/GL/glew.h"
@@ -18,7 +20,6 @@
 
 //license exception 발생..?
 //using namespace Euresys::Open_eVision_2_5;
-//using namespace Euresys::Open_eVision_2_13;
 
 //▲▲▲▲▲▲▲▲▲▲▲▲▲▲ user custom (정리 해야함) ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
@@ -74,8 +75,8 @@ private:
 	//tmp 동적할당
 	float* pPosition;
 	float* pColor;
-	int iWidth = 180;
-	int iHeight = 100;
+	int iWidth;
+	int iHeight;
 
 	//tmp
 	GLfloat dotSize = 5.0f;
@@ -87,7 +88,8 @@ private:
 	//EImageBW8 EBW8Image1; // EImageBW8 instance
 	
 
-
+	CImage imageT1;
+	
 public:
 	afx_msg void OnBnClickedButton2();
 	CStatic m_picRight1;
