@@ -58,6 +58,7 @@ void COpenGLwithMFCDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_PICTURE, m_picture);
 	DDX_Control(pDX, IDC_PIC_RIGHT1, m_picRight1);
+	DDX_Control(pDX, IDC_STAT_TEST, m_textCurStat);
 }
 
 BEGIN_MESSAGE_MAP(COpenGLwithMFCDlg, CDialogEx)
@@ -67,6 +68,8 @@ BEGIN_MESSAGE_MAP(COpenGLwithMFCDlg, CDialogEx)
 	ON_WM_DESTROY()
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_BUTTON2, &COpenGLwithMFCDlg::OnBnClickedButton2)
+//	ON_WM_KEYDOWN()
+//	ON_WM_KEYUP()
 END_MESSAGE_MAP()
 
 
@@ -81,6 +84,7 @@ BOOL COpenGLwithMFCDlg::OnInitDialog()
 	// IDM_ABOUTBOX는 시스템 명령 범위에 있어야 합니다.
 	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
 	ASSERT(IDM_ABOUTBOX < 0xF000);
+
 
 	CMenu* pSysMenu = GetSystemMenu(FALSE);
 	if (pSysMenu != NULL)
@@ -121,7 +125,7 @@ BOOL COpenGLwithMFCDlg::OnInitDialog()
 	glUseProgram(shaderProgram);
 	glBindVertexArray(vao);
 
-	SetTimer(1000, 30, NULL);
+	SetTimer(1000, 15, NULL); //15 =: 60 FPS / 30 =: 30FPS
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -193,27 +197,75 @@ void COpenGLwithMFCDlg::OnDestroy()
 
 void COpenGLwithMFCDlg::OnTimer(UINT_PTR nIDEvent)
 {
-	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-
 	CDialogEx::OnTimer(nIDEvent);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	//실시간인지 테스드해봄 (밑으로4줄)
-	if (dotDirection) dotSize += 0.5f;
-	else dotSize -= 0.5f;
-	if (~dotDirection & (5.0f > dotSize)) dotDirection = true;
-	else if (dotDirection & (15.0f < dotSize)) dotDirection = false;
+	//
+	//				포인트 사이즈 변경
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//@@@
+	//실시간인지 테스드해봄 (밑으로4줄)				 //@@@
+	if (dotDirection) dotSize += 0.5f;				 //@@@
+	else dotSize -= 0.5f;							 //@@@
+	if (5.0f > dotSize) dotDirection = true;		 //@@@
+	else if (15.0f < dotSize) dotDirection = false;	 //@@@
+	glPointSize(dotSize);							 //@@@
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//@@@
+	//
+	//				프레임 확인용
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//@@@
+	DWORD curTime = GetCurrentTime(); // gettick64 사용하는것이 더 안전함 49.71일뒤에 오버플로우발생
+	static DWORD lastTime = curTime;					  //@@@
+	DWORD intervalTime = curTime - lastTime;			  //@@@
+	lastTime = curTime;									  //@@@
+	CString cst_tmp;									  //@@@
+	if (intervalTime)									  //@@@
+		cst_tmp.Format(_T("FPS : %.3lf"), 1000.0f / intervalTime);
+														  //@@@
+	m_textCurStat.SetWindowTextW(cst_tmp);				  //@@@
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//@@@
+	//
+	//				포인트 2개 교차
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//@@@
+	static boolean onoffState = true;				 //@@@
+													 //@@@
+	if (onoffState) onoffState = false;				 //@@@
+	else onoffState = true;							 //@@@
+													 //@@@
+	GLuint shaderProgram3;							 //@@@
+													 //@@@
+	if (onoffState) myDefineVAO(vao, shaderProgram3);//@@@
+	else defineVAO(vao, shaderProgram3);			 //@@@
+													 //@@@
+	glUseProgram(shaderProgram3);					 //@@@
+	glBindVertexArray(vao);							 //@@@
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//@@@
+	//
+	//				카메라 이동
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//@@@
 
-	//key 시도중 ()
-	//glfwGetKey()
 
-	glPointSize(dotSize);
+
+
+
+
+
+
+
+
+
+
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//@@@
+
+
+
 
 	glDrawArrays(GL_POINTS, 0, (iWidth*iHeight));
-	glEnable(GL_POINT_SMOOTH);
-
+	
+	//antialiasing
+	//glEnable(GL_POINT_SMOOTH); 
+	
 	//화면 업데이트
 	SwapBuffers(m_pDC->GetSafeHdc());
 }
@@ -517,7 +569,7 @@ BOOL COpenGLwithMFCDlg::SetupPixelFormat()
 	return TRUE;
 }
 
-
+// 잠시 접고 카메라 전환 테스트
 void COpenGLwithMFCDlg::OnBnClickedButton2()
 {
 	CDC* pDCrightPic = m_picRight1.GetDC();
@@ -527,10 +579,161 @@ void COpenGLwithMFCDlg::OnBnClickedButton2()
 
 	//WWWWWWWWWWWWWWWWWWWWWWWWWWeVision -> CImage class 진행중.. @@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-	//imageT1.Load(_T("C:/Users/LG/Documents/Visual Studio 2015/Projects/OpenGL with MFC/OpenGL with MFC/GrayTest.bmp"));
+	//imageT1.Load(_T("C:/Users/LG/Documents/Visual Studio 2015/Projects/OpenGL with MFC/OpenGL with MFC/GrayTestSmall.bmp"));
 	//int kk = imageT1.GetWidth();
 
-	iWidth -= 1;
+	//iWidth -= 1;
 
 	//TRACE("kk = %d", kk);
+
+
+	//TODO: defineVAO 수정하여 카메라 이동이나 포인트 추가 삭제 구현..?
+
+	GLuint shaderProgram2;
+	myDefineVAO(vao, shaderProgram2);
+
+	glUseProgram(shaderProgram2);
+	glBindVertexArray(vao);
+}
+
+//여기에 카메라 전환 진행
+BOOL COpenGLwithMFCDlg::PreTranslateMessage(MSG* pMsg)
+{
+	if (pMsg->message == WM_KEYDOWN)
+	{
+		switch (pMsg->wParam)
+		{
+		case VK_DOWN:
+			m_textCurStat.SetWindowTextW(_T("down"));
+			break;
+		case VK_UP:
+			m_textCurStat.SetWindowTextW(_T("up"));
+			break;
+		case VK_RIGHT:
+			m_textCurStat.SetWindowTextW(_T("right"));
+			break;
+		case VK_LEFT:
+			m_textCurStat.SetWindowTextW(_T("left"));
+			break;
+		default:
+			m_textCurStat.SetWindowTextW(_T("unknown")); 
+			break;
+		}
+	}
+	return CDialogEx::PreTranslateMessage(pMsg);
+}
+
+void COpenGLwithMFCDlg::myDefineVAO(GLuint &vao, GLuint &shaderProgram)
+{
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+
+
+	//====================try.old=======================
+
+	pPosition = new float[iWidth*iHeight * 3];
+	pColor = new float[iWidth*iHeight * 3];
+
+	for (int i = 0; i < (iWidth*iHeight); i++) {
+
+		float kkk = (float)i / (iWidth*iHeight); //tmp		
+		pPosition[i * 3 + 0] = 0.95f - 1.9f * kkk; // x 좌표
+		pPosition[i * 3 + 1] = -0.95f +1.9f * kkk; // y 좌표
+		pPosition[i * 3 + 2] = 0.0f; // z 좌표
+
+	}
+
+	for (int i = 0; i < (iWidth*iHeight); i++) {
+		float kkk = (float)i / (iWidth*iHeight); //tmp		
+		pColor[i * 3 + 0] = kkk; // R
+		pColor[i * 3 + 1] = 1.0f; // G
+		pColor[i * 3 + 2] = 0.0f; // B
+	}
+
+	GLuint position_vbo, color_vbo;
+
+	glGenBuffers(1, &position_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, position_vbo);
+	glBufferData(GL_ARRAY_BUFFER, _msize(pPosition), pPosition, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &color_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
+	glBufferData(GL_ARRAY_BUFFER, _msize(pColor), pColor, GL_STATIC_DRAW);
+
+
+	shaderProgram = create_program();
+
+	GLint position_attribute = glGetAttribLocation(shaderProgram, "position");
+	glBindBuffer(GL_ARRAY_BUFFER, position_vbo);
+	glVertexAttribPointer(position_attribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(position_attribute);
+
+	GLint color_attribute = glGetAttribLocation(shaderProgram, "color");
+	glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
+	glVertexAttribPointer(color_attribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(color_attribute);
+
+	glBindVertexArray(0);
+}
+
+void COpenGLwithMFCDlg::myCamRotate(GLuint &vao, GLuint &shaderProgram)
+{
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	
+	pPosition = new float[iWidth*iHeight * 3];
+	pColor = new float[iWidth*iHeight * 3];
+
+	for (int i = 0; i < (iWidth*iHeight); i++) {
+
+		float kkk = (float)i / (iWidth*iHeight); //tmp		
+		pPosition[i * 3 + 0] = 0.95f - 1.9f * kkk; // x 좌표
+		pPosition[i * 3 + 1] = -0.95f + 1.9f * kkk; // y 좌표
+		pPosition[i * 3 + 2] = 0.0f; // z 좌표
+
+	}
+
+	for (int i = 0; i < (iWidth*iHeight); i++) {
+		float kkk = (float)i / (iWidth*iHeight); //tmp		
+		pColor[i * 3 + 0] = kkk; // R
+		pColor[i * 3 + 1] = 1.0f; // G
+		pColor[i * 3 + 2] = 0.0f; // B
+	}
+
+	GLuint position_vbo, color_vbo;
+
+	static float faCameraPos[3] = { -5.0f,-5.0f,-5.0f }; //1회만 정의되는 카메라 위치 선언
+
+
+
+
+
+
+
+
+
+
+	glGenBuffers(1, &position_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, position_vbo);
+	glBufferData(GL_ARRAY_BUFFER, _msize(pPosition), pPosition, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &color_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
+	glBufferData(GL_ARRAY_BUFFER, _msize(pColor), pColor, GL_STATIC_DRAW);
+
+
+	shaderProgram = create_program();
+
+	GLint position_attribute = glGetAttribLocation(shaderProgram, "position");
+	glBindBuffer(GL_ARRAY_BUFFER, position_vbo);
+	glVertexAttribPointer(position_attribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(position_attribute);
+
+	GLint color_attribute = glGetAttribLocation(shaderProgram, "color");
+	glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
+	glVertexAttribPointer(color_attribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(color_attribute);
+
+	glBindVertexArray(0);
 }

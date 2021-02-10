@@ -14,6 +14,7 @@
 #include "include/GL/glew.h"
 #include "include/GL/wglew.h"
 
+
 //사용할 라이브러리를 지정해줍니다.
 #pragma comment(lib, "OpenGL32.lib")
 #pragma comment(lib, "./lib/glew32.lib")
@@ -93,4 +94,11 @@ private:
 public:
 	afx_msg void OnBnClickedButton2();
 	CStatic m_picRight1;
+	CStatic m_textCurStat;
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+
+	void myDefineVAO(GLuint & vao, GLuint & shaderProgram); //정리해
+	void myCamRotate(GLuint & vao, GLuint & shaderProgram); //이것도
+
+
 };
